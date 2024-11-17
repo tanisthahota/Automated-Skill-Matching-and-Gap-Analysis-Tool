@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FileText, Briefcase, BarChart2, User } from 'lucide-react';
+import { FileText, Briefcase, BarChart2, User, Info } from 'lucide-react';
 
 export function Navbar() {
   return (
@@ -24,6 +24,10 @@ export function Navbar() {
             <Link to="/profile" className="flex items-center space-x-1 hover:text-indigo-200">
               <User className="h-5 w-5" />
               <span>Profile</span>
+            </Link>
+            <Link to="/about" className="flex items-center space-x-1 hover:text-indigo-200">
+              <Info className="h-5 w-5" />
+              <span>About</span>
             </Link>
           </div>
         </div>

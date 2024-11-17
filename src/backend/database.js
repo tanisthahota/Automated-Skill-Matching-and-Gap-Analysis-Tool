@@ -42,8 +42,7 @@ async function analyzeSkillGaps(userID) {
 }
 
 export {
-    pool,
-    registeruser,
+    registerUser,
     loginUser,
     extractUserSkills,
     matchUserSkillsWithJobs,
