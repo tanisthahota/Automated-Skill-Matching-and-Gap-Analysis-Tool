@@ -63,14 +63,13 @@ export const resumeApi = {
     return response.data;
   },
 
-  async delete(resumeId: string) {
-    const response = await api.delete(`/resumes/${resumeId}`);
-    return response.data;
-  }
+  delete: (id: string) => api.delete(`/resumes/${id}`).then(res => res.data)
+
 };
 
 // Job API
 export const jobApi = {
+
   async create(jobData: {
     title: string;
     description: string;
@@ -101,8 +100,42 @@ export const jobApi = {
     return response.data;
   },
 
+  apply: async (jobId: string, resumeId: string) => {
+    const response = await api.post(`/jobs/${jobId}/apply`, { resumeId });
+    return response.data;
+  },
+
+  async getApplicationStatus(jobId: string) {
+    const response = await api.get(`/jobs/${jobId}/application-status`);
+    return response.data;
+  },
+
+  async getMyApplications() {
+    const response = await api.get('/jobs/my-applications');
+    return response.data;
+  },
+
+  async getJobApplications() {
+    const response = await api.get('/jobs/applications');
+    return response.data;
+  },
+
+  async updateApplicationStatus(applicationId: string, status: string) {
+    const response = await api.put(`/jobs/applications/${applicationId}`, { status });
+    return response.data;
+  },
+  async getRecommendations() {
+    const response = await api.get('/jobs/recommendations');
+    return response.data;
+  },
+
   async delete(jobId: string) {
     const response = await api.delete(`/jobs/${jobId}`);
+    return response.data;
+  },
+
+  async deleteApplication(applicationId: string) {
+    const response = await api.delete(`/jobs/applications/${applicationId}`);
     return response.data;
   }
 };

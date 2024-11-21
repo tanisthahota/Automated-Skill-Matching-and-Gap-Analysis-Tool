@@ -1,41 +1,43 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserCircle2 } from 'lucide-react';
+import { authApi } from '../pages/api';
 
 export function Login() {
   const [isLogin, setIsLogin] = useState(true);
-  const [role, setRole] = useState('user');
+  const [role, setRole] = useState('Job Seeker');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError('');
     const formData = new FormData(e.currentTarget);
-    const data = {
-      email: formData.get('email'),
-      password: formData.get('password'),
-      role: role,
-      ...(isLogin ? {} : {
-        name: formData.get('name'),
-        phone: formData.get('phone'),
-        address: formData.get('address')
-      })
-    };
-
+    
     try {
-      const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-
-      if (response.ok) {
-        const { token } = await response.json();
-        localStorage.setItem('token', token);
+      if (isLogin) {
+        const response = await authApi.login(
+          formData.get('email') as string,
+          formData.get('password') as string
+        );
+        localStorage.setItem('token', response.token);
+        localStorage.setItem('user', JSON.stringify(response.user));
+        navigate('/');
+      } else {
+        const response = await authApi.register({
+          name: formData.get('name') as string,
+          email: formData.get('email') as string,
+          password: formData.get('password') as string,
+          phone: formData.get('phone') as string,
+          address: formData.get('address') as string,
+          role: role as 'Job Seeker' | 'Recruiter'
+        });
+        localStorage.setItem('token', response.token);
+        localStorage.setItem('user', JSON.stringify(response.user));
         navigate('/dashboard');
       }
-    } catch (error) {
-      console.error('Auth error:', error);
+    } catch (error: any) {
+      setError(error.response?.data?.error || 'An error occurred');
     }
   };
 
@@ -52,6 +54,9 @@ export function Login() {
           <p className="text-gray-600 mt-2">
             {isLogin ? 'Sign in to your account' : 'Register a new account'}
           </p>
+          {error && (
+            <p className="text-red-500 mt-2 text-sm">{error}</p>
+          )}
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -121,8 +126,8 @@ export function Login() {
               onChange={(e) => setRole(e.target.value)}
               className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
             >
-              <option value="user">Job Seeker</option>
-              <option value="recruiter">Recruiter</option>
+              <option value="Job Seeker">Job Seeker</option>
+              {/* <option value="Recruiter">Recruiter</option> */}
             </select>
           </div>
 

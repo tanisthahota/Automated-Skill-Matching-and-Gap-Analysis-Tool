@@ -1,95 +1,163 @@
-import React from 'react';
-import { Briefcase, MapPin, Star, Clock } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { jobApi } from './api';
+import { JobPostForm } from '../components/JobPostForm';
+import { Job } from '../types';
+import { JobRecommendations } from '../components/JobRecommendations';
+import { JobList } from '../components/JobList';
+import { JobDetails } from '../components/JobDetails';
 
 export function Jobs() {
-  const jobs = [
-    {
-      id: '1',
-      title: 'Senior Frontend Developer',
-      company: 'TechCorp',
-      location: 'San Francisco, CA',
-      matchRate: 90,
-      posted: '2 days ago',
-      skills: ['React', 'TypeScript', 'GraphQL'],
-    },
-    {
-      id: '2',
-      title: 'Full Stack Engineer',
-      company: 'StartupX',
-      location: 'Remote',
-      matchRate: 75,
-      posted: '1 week ago',
-      skills: ['Node.js', 'React', 'MongoDB'],
-    },
-  ];
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showPostForm, setShowPostForm] = useState(false);
+  const [locationFilter, setLocationFilter] = useState('all');
+  const [sortBy, setSortBy] = useState<'matchRate' | 'date'>('matchRate');
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+  useEffect(() => {
+    loadJobs();
+  }, []);
+
+  const loadJobs = async () => {
+    try {
+      const data = await jobApi.getAll();
+      // Fetch application status for each job
+      const jobsWithStatus = await Promise.all(
+        data.map(async (job : any) => {
+          const status = await jobApi.getApplicationStatus(job.id);
+          return {
+            ...job,
+            applicationStatus: status
+          };
+        })
+      );
+      setJobs(jobsWithStatus);
+    } catch (error) {
+      console.error('Failed to load jobs:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePostJob = async (jobData: {
+    title: string;
+    description: string;
+    location: string;
+    skills: string[];
+  }) => {
+    try {
+      await jobApi.create(jobData);
+      setShowPostForm(false);
+      loadJobs();
+    } catch (error) {
+      console.error('Failed to post job:', error);
+    }
+  };
+
+  const filteredJobs = jobs
+    .filter(job => 
+      locationFilter === 'all' || 
+      (locationFilter === 'remote' && job.location.toLowerCase().includes('remote')) ||
+      (locationFilter === 'onsite' && !job.location.toLowerCase().includes('remote'))
+    )
+    .sort((a, b) => 
+      sortBy === 'matchRate' ? 
+        b.matchRate - a.matchRate : 
+        new Date(b.posted).getTime() - new Date(a.posted).getTime()
+    );
+    const handleApply = async (jobId: string, resumeId: string) => {
+      try {
+        await jobApi.apply(jobId, resumeId);
+        setSelectedJob(null);
+        loadJobs();
+      } catch (error: any) {
+        alert(error.response?.data?.error || 'Failed to apply for job');
+      }
+    };
+
+  const handleJobClick = (job: Job) => {
+    setSelectedJob(job);
+  };
+
+  if (loading) return <div>Loading...</div>;
 
   return (
     <div className="space-y-8">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-900">Job Matches</h1>
-        <div className="flex space-x-4">
-          <select className="border border-gray-300 rounded-lg px-4 py-2">
-            <option>All Locations</option>
-            <option>Remote Only</option>
-            <option>On-site Only</option>
-          </select>
-          <select className="border border-gray-300 rounded-lg px-4 py-2">
-            <option>Match Rate: High to Low</option>
-            <option>Most Recent</option>
-          </select>
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        {/* Main job listing section */}
+        <div className="lg:col-span-3 space-y-8">
+          <div className="flex justify-between items-center">
+            <h1 className="text-3xl font-bold text-gray-900">Job Matches</h1>
+            <div className="flex space-x-4">
+              {user.role === 'Recruiter' && (
+                <button 
+                  onClick={() => setShowPostForm(true)}
+                  className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
+                >
+                  Post New Job
+                </button>
+              )}
+              <select 
+                value={locationFilter}
+                onChange={(e) => setLocationFilter(e.target.value)}
+                className="border border-gray-300 rounded-lg px-4 py-2"
+              >
+                <option value="all">All Locations</option>
+                <option value="remote">Remote Only</option>
+                <option value="onsite">On-site Only</option>
+              </select>
+              <select 
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as 'matchRate' | 'date')}
+                className="border border-gray-300 rounded-lg px-4 py-2"
+              >
+                <option value="matchRate">Match Rate: High to Low</option>
+                <option value="date">Most Recent</option>
+              </select>
+            </div>
+          </div>
+
+          <JobList 
+            jobs={filteredJobs} 
+            onApply={async (jobId) => {
+              const job = jobs.find(j => j.id === jobId);
+              if (job) {
+                setSelectedJob(job);
+              }
+            }}
+            onShowDetails={handleJobClick}
+          />
+        </div>
+
+        {/* Recommendations sidebar */}
+        <div className="lg:col-span-1">
+          <JobRecommendations />
         </div>
       </div>
 
-      <div className="grid gap-6">
-        {jobs.map((job) => (
-          <div
-            key={job.id}
-            className="bg-white p-6 rounded-xl shadow-sm border border-gray-100"
-          >
-            <div className="flex justify-between items-start">
-              <div className="space-y-4">
-                <div className="space-y-1">
-                  <h3 className="text-xl font-bold text-gray-900">{job.title}</h3>
-                  <p className="text-gray-600">{job.company}</p>
-                  <div className="flex items-center space-x-4 text-gray-500">
-                    <div className="flex items-center space-x-1">
-                      <MapPin className="h-4 w-4" />
-                      <span>{job.location}</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <Clock className="h-4 w-4" />
-                      <span>{job.posted}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap gap-2">
-                  {job.skills.map((skill) => (
-                    <span
-                      key={skill}
-                      className="px-3 py-1 bg-indigo-100 text-indigo-700 text-sm rounded-full"
-                    >
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex flex-col items-end space-y-4">
-                <div className="flex items-center space-x-2">
-                  <Star className="h-5 w-5 text-yellow-400 fill-current" />
-                  <span className="text-2xl font-bold text-indigo-600">
-                    {job.matchRate}%
-                  </span>
-                </div>
-                <button className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700">
-                  View Details
-                </button>
-              </div>
-            </div>
+      {/* Job post form modal */}
+      {showPostForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl max-w-2xl w-full p-6">
+            <JobPostForm onSubmit={handlePostJob} />
+            <button 
+              onClick={() => setShowPostForm(false)}
+              className="mt-4 w-full p-2 text-gray-500 hover:text-gray-700"
+            >
+              Cancel
+            </button>
           </div>
-        ))}
-      </div>
+        </div>
+      )}
+
+      {selectedJob && (
+        <JobDetails
+          job={selectedJob}
+          onClose={() => setSelectedJob(null)}
+          onApply={handleApply}
+        />
+      )}
     </div>
   );
 }

@@ -5,27 +5,27 @@ async function extractSkillsFromPDF(filePath) {
     const dataBuffer = fs.readFileSync(filePath);
     
     const data = await pdf(dataBuffer);
-    const text = data.text;
+    const text = data.text.toLowerCase();
 
     const skillsList = [
         
-        'Python', 'C', 'C++', 'R', 'LATEX', 'JavaScript', 'SQL', 'NoSQL', 'Bash',
+        'python', 'c', 'c++', 'r', 'latex', 'javascript', 'sql', 'nosql', 'bash',
 
         
-        'Scikit-learn', 'TensorFlow', 'PyTorch', 'ONNX', 'PyTorch Geometric', 'Deep Learning',
-        'Natural Language Processing', 'NLP', 'Computer Vision', 'Audio Analysis', 'Signal Processing',
-        'Graph Neural Networks', 'Time Series Forecasting', 'Generative AI', 'Spark', 'Hadoop', 'PySpark', 
-        'Kafka', 'Stable Diffusion',
+        'scikit-learn', 'tensorflow', 'pytorch', 'onnx', 'pytorch geometric', 'deep learning',
+        'natural language processing', 'nlp', 'computer vision', 'audio analysis', 'signal processing',
+        'graph neural networks', 'time series forecasting', 'generative ai', 'spark', 'hadoop', 'pyspark', 
+        'kafka', 'stable diffusion','docker', 'kubernetes',
 
         
-        'Git', 'VS Code', 'Nano', 'AWS Cloud Formation',
+        'git', 'vs code', 'nano', 'aws cloud formation',
 
         
-        'ReactJS', 'NodeJS', 'ExpressJS', 'Django', 'TailwindCSS', 'Bootstrap', 'Mongo', 'Flask', 'NEXT.js'
+        'reactjs', 'nodejs', 'expressjs', 'django', 'tailwindcss', 'bootstrap', 'mongo', 'flask', 'next.js'
     ];
 
-    // Extract skills that are present in the PDF text
-    const extractedSkills = skillsList.filter(skill => text.includes(skill));
+    // Extract skills that are present in the PDF text (all lowercase comparison)
+    const extractedSkills = skillsList.filter(skill => text.includes(skill.toLowerCase()));
 
     return extractedSkills;
 }
