@@ -7,7 +7,7 @@ export function About() {
       name: 'Tanistha Hota',
       role: 'Student at PES University',
       usn: 'PES2UG22CS618',
-      image: 'tanshita2.jpg',
+      image: 'images/tanshita2.jpg',
       github: 'https://github.com/tanisthahota',
       linkedin: 'https://www.linkedin.com/in/tanistha-hota-471a95250',
       email: 'mailto:hotatanistha@gmail.com'
@@ -16,7 +16,7 @@ export function About() {
       name: 'Suhit Hegde',
       role: 'Student at PES University',
       usn: 'PES2UG22CS591',
-      image: 'susu2.png',
+      image: 'images/susu2.png',
       github: 'https://github.com/EscVel',
       linkedin: 'https://www.linkedin.com/in/suhit-hegde-a63446297',
       email: 'mailto:suhithegde@gmail.com'
