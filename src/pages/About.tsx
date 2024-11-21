@@ -5,21 +5,21 @@ export function About() {
   const teamMembers = [
     {
       name: 'Tanistha Hota',
-      role: 'Full Stack Developer',
+      role: 'Student at PES University',
       usn: 'PES2UG22CS618',
-      image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200&h=200',
+      image: 'tanshita2.jpg',
       github: 'https://github.com/tanisthahota',
-      linkedin: '#',
-      email: 'mailto:tanistha@example.com'
+      linkedin: 'https://www.linkedin.com/in/tanistha-hota-471a95250',
+      email: 'mailto:hotatanistha@gmail.com'
     },
     {
-      name: 'Team Member',
-      role: 'Full Stack Developer',
+      name: 'Suhit Hegde',
+      role: 'Student at PES University',
       usn: 'PES2UG22CS591',
-      image: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&q=80&w=200&h=200',
-      github: '#',
-      linkedin: '#',
-      email: 'mailto:member@example.com'
+      image: 'susu2.png',
+      github: 'https://github.com/EscVel',
+      linkedin: 'https://www.linkedin.com/in/suhit-hegde-a63446297',
+      email: 'mailto:suhithegde@gmail.com'
     }
   ];
 
@@ -81,7 +81,7 @@ export function About() {
                 <li>Node.js</li>
                 <li>Express</li>
                 <li>MySQL</li>
-                <li>JWT Auth</li>
+                
               </ul>
             </div>
           </div>
