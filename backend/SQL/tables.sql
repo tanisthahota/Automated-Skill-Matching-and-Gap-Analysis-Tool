@@ -92,3 +92,4 @@ CREATE TABLE Gap_Analysis (
     FOREIGN KEY (User_ID) REFERENCES User(UserID),
     FOREIGN KEY (Job_Description_ID) REFERENCES Job_Description(Job_Description_ID)
 );
+

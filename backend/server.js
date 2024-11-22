@@ -195,7 +195,7 @@ app.get('/api/jobs/my-applications', authenticateToken, async (req, res) => {
         jd.Description as description,
         ja.Application_Date as applicationDate,
         ja.Status as status,
-        r.File_Name as resumeName,
+        r.File_Name as resumeName, 
         GROUP_CONCAT(DISTINCT s.Skill_Name) as skills
       FROM Job_Applications ja
       JOIN Job_Description jd ON ja.Job_Description_ID = jd.Job_Description_ID

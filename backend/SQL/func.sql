@@ -72,3 +72,79 @@ BEGIN
 END //
 
 DELIMITER ;
+
+-- DELIMITER //
+
+-- CREATE TRIGGER after_resume_upload
+-- AFTER INSERT ON Resume
+-- FOR EACH ROW
+-- BEGIN
+--     -- Update skill matches for the new resume
+--     INSERT INTO Skill_Match (Job_Description_ID, Resume_ID, Match_Status, Match_Rate)
+--     SELECT 
+--         jd.Job_Description_ID,
+--         NEW.Resume_ID,
+--         CASE 
+--             WHEN COUNT(DISTINCT rs.Skill_ID) = COUNT(DISTINCT jds.Skill_ID) THEN 'Matched'
+--             ELSE 'Not Matched'
+--         END,
+--         (COUNT(DISTINCT rs.Skill_ID) * 100.0 / COUNT(DISTINCT jds.Skill_ID)) as match_rate
+--     FROM Job_Description jd
+--     JOIN Job_Description_Skills jds ON jd.Job_Description_ID = jds.Job_Description_ID
+--     LEFT JOIN Resume_Skills rs ON rs.Resume_ID = NEW.Resume_ID 
+--         AND rs.Skill_ID = jds.Skill_ID
+--     GROUP BY jd.Job_Description_ID;
+-- END //
+
+-- DELIMITER ;
+
+-- DELIMITER //
+
+-- CREATE TRIGGER before_application_insert
+-- BEFORE INSERT ON Job_Applications
+-- FOR EACH ROW
+-- BEGIN
+--     DECLARE match_rate DECIMAL(5,2);
+    
+--     -- Calculate match rate
+--     SELECT 
+--         (COUNT(DISTINCT rs.Skill_ID) * 100.0 / COUNT(DISTINCT jds.Skill_ID)) INTO match_rate
+--     FROM Job_Description_Skills jds
+--     LEFT JOIN Resume_Skills rs ON rs.Resume_ID = NEW.Resume_ID 
+--         AND rs.Skill_ID = jds.Skill_ID
+--     WHERE jds.Job_Description_ID = NEW.Job_Description_ID;
+    
+--     -- Set initial status based on match rate
+--     IF match_rate >= 80 THEN
+--         SET NEW.Status = 'Under Review';
+--     ELSE
+--         SET NEW.Status = 'Pending';
+--     END IF;
+-- END //
+
+-- DELIMITER ;
+
+-- DELIMITER //
+
+-- CREATE TRIGGER after_job_skill_insert
+-- AFTER INSERT ON Job_Description_Skills
+-- FOR EACH ROW
+-- BEGIN
+--     -- Update gap analysis for all users
+--     INSERT INTO Gap_Analysis (User_ID, Job_Description_ID, Missing_Skills)
+--     SELECT 
+--         r.User_ID,
+--         NEW.Job_Description_ID,
+--         (SELECT Skill_Name FROM Skills WHERE Skill_ID = NEW.Skill_ID) as missing_skill
+--     FROM Resume r
+--     WHERE NOT EXISTS (
+--         SELECT 1 
+--         FROM Resume_Skills rs 
+--         WHERE rs.Resume_ID = r.Resume_ID 
+--         AND rs.Skill_ID = NEW.Skill_ID
+--     )
+--     ON DUPLICATE KEY UPDATE
+--         Missing_Skills = CONCAT(Missing_Skills, ', ', VALUES(Missing_Skills));
+-- END //
+
+-- DELIMITER ;

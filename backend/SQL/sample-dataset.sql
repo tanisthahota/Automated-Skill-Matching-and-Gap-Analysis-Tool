@@ -26,6 +26,7 @@ INSERT INTO Job_Description (Job_Name, Job_Role, Company_Name, Location, Descrip
 ('Full Stack Developer', 'Software Engineer', 'InnovateSoft', 'New York', 'Join our team as a Full Stack Developer...'),
 ('DevOps Engineer', 'Operations', 'CloudTech', 'Remote', 'Seeking a DevOps engineer with experience in AWS...'),
 ('UI/UX Designer', 'Design', 'DesignPro', 'London', 'Creative designer needed with expertise in design tools...');
+('software developer' , ' Software Engineer' ,  'Microsoft ' , 'Remote ' ,' Looking for a skilled frontend developer');
 
 -- Insert job description skills (linking jobs with required skills)
 INSERT INTO Job_Description_Skills (Job_Description_ID, Skill_ID) VALUES
@@ -39,6 +40,11 @@ INSERT INTO Job_Description_Skills (Job_Description_ID, Skill_ID) VALUES
 (4, 7), -- DevOps needs Docker
 (4, 8), -- DevOps needs AWS
 (5, 9); -- UI/UX needs Git
+(6,1);
+(6,8);
+(6,9);
+(6,5);
+(6,3);
 
 -- Insert sample resumes
 INSERT INTO Resume (User_ID, File_Name, Upload_Date) VALUES
